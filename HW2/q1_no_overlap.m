@@ -19,7 +19,7 @@ while error_flag == true
     % for each training vector and target output
     for i = 1:1000
         % calcuate the weight sum
-        weight_sum = weights(1) * X(i, 1) + weights(2) * X(i, 2);
+        weight_sum = weights(1) * X(i, 1) + weights(2) * X(i, 2) + bias;
 
         % apply the activation function
         output = my_activation(weight_sum);
@@ -43,7 +43,7 @@ scatter(X(Y == -1, 1), X(Y == -1, 2), 'red', 'Marker', 'o');
 
 % Plotting the decision boundary
 x = linspace(-15, 25, 100);
-y = -((x*weights(1))/weights(2));
+y = -((x*weights(1)+bias-5)/weights(2));
 
 %plot(x_boundary, y_boundary, 'g', 'LineWidth', 2, 'DisplayName', 'Decision Boundary');
 plot(x, y, 'green', 'LineWidth', 2);
