@@ -1,17 +1,18 @@
 % loading the data
-load('Two_moons_no_overlap.mat');
+load('Two_moons_overlap3.mat');
 
 % I will set the hidden weights to 1 initially
-w_hidden = [1 1 1; 1 1 1];
+% w_hidden = [1 1 1; 1 1 1];
+w_hidden = [2 2 2; 2 2 2];
 
 % I will set the hidden bias to 1 initially
 b_hidden = [1; 1; 1];
 
 % I will set the output weights to 1 initially
-w_output = [1; 1; 1];
+w_output = [1 1; 1 1; 1 1];
 
 % I will set the output bias to 1 initially
-b_output = [1];
+b_output = [1; 1];
 
 % I will set the learning rate to 0.01
 learning_rate = 0.01;
@@ -31,14 +32,19 @@ for round = 1:rounds
         z2out = my_activation(z2in);
         z3out = my_activation(z3in);
 
-        % sum up the inputs for the output neuron (y)
-        yin = w_output(1) * z1out + w_output(2) * z2out + w_output(3) * z3out + b_output(1);
+        % sum up the inputs for each of the output neurons (y)
+        y1in = w_output(1, 1) * z1out + w_output(2, 1) * z2out + w_output(3, 1) * z3out + b_output(1);
+        y2in = w_output(1, 2) * z1out + w_output(2, 2) * z2out + w_output(3, 2) * z3out + b_output(2);
 
-        %calculate the output of the output neuron (y)
-        yout = my_activation(yin);
+        %calculate the output for each of the output neurons (y)
+        y1out = my_activation(y1in);
+        y2out = my_activation(y2in);
+
+        % use the AND gate to classify the class
+        final_output = my_and(y1out, y2out);
 
         % update the weights and bias if needed
-        if yout ~= Y(i)
+        if final_output ~= Y(i)
             if Y(i) == 1
                 % decide which weight and bias to update
                 target1 = false;
@@ -80,7 +86,7 @@ for round = 1:rounds
                 target2 = false;
                 target3 = false;
 
-                if z1in > 0
+                if zin1 > 0
                     target1 = true;
                 elseif zin2 > 0
                     target2 = true;
@@ -157,6 +163,17 @@ function minout = my_min(x, y, z)
         minout = z;
     end
 end
+
+function and_out = my_and(x, y)
+    if x == -1 && y == -1
+        and_out = -1;
+    elseif x == 1 && y == 1
+        and_out = 1;
+    else
+        and_out = 0;
+    end
+end
+
 
 
 

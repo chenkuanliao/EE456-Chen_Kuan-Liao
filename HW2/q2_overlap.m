@@ -27,7 +27,7 @@ for round = 1:rounds
         z3in = w_hidden(1, 3) * X(i, 1) + w_hidden(2, 3) * X(i, 2) + b_hidden(3);
 
         % calculate the output for each hidden neurons (z)
-        % z1out = my_sigmoid(z1in);
+        z1out = my_activation(z1in);
         z2out = my_activation(z2in);
         z3out = my_activation(z3in);
 
@@ -120,10 +120,6 @@ y = (-x*(w_hidden(1, 1)+w_hidden(1, 2)+w_hidden(1, 3))-b_hidden(1)-b_hidden(2)-b
 
 %plot(x_boundary, y_boundary, 'g', 'LineWidth', 2, 'DisplayName', 'Decision Boundary');
 plot(x, y, 'green', 'LineWidth', 2);
-
-% Display the final weights and bias
-fprintf('Final weights: w1 = %.4f, w2 = %.4f\n', weights(1), weights(2));
-fprintf('Final bias: b = %.4f\n', bias);
 
 title('Perceptron Decision Boundary');
 grid on;

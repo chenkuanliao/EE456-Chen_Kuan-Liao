@@ -48,10 +48,6 @@ y = -((x*weights(1)+bias-5)/weights(2));
 %plot(x_boundary, y_boundary, 'g', 'LineWidth', 2, 'DisplayName', 'Decision Boundary');
 plot(x, y, 'green', 'LineWidth', 2);
 
-% Display the final weights and bias
-fprintf('Final weights: w1 = %.4f, w2 = %.4f\n', weights(1), weights(2));
-fprintf('Final bias: b = %.4f\n', bias);
-
 title('Perceptron Decision Boundary');
 grid on;
 hold off
