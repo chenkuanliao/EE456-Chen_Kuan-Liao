@@ -1,25 +1,26 @@
 % loading the data
 load('Two_moons_overlap2.mat');
 
-% I will set the hidden weights to 1 initially
-w_hidden = [1 1 1; 1 1 1];
+% I will set the hidden weights to very small values
+w_hidden = randi([100, 999], 2, 3) * 0.0000001;
 
 % I will set the hidden bias to 1 initially
-b_hidden = [1; 1; 1];
-
-% I will set the output weights to 1 initially
-w_output = [1; 1; 1];
-
-% I will set the output bias to 1 initially
-b_output = [1];
+b_hidden = randi([100, 999], 3, 1) * 0.0000001;
 
 % I will set the learning rate to 0.01
-learning_rate = 0.01;
+learning_rate = 0.005;
 
 % I will run the training for 100 rounds
-rounds = 10000;
+rounds = 600;
+
+% variables for error plotting
+iteration = [];
+error_value = 0;
+error = [];
 
 for round = 1:rounds
+    iteration(round) = round;
+    error_value = 0;
     for i = 1:1000
         % sum up the inputs for each hidden neurons (z)
         z1in = w_hidden(1, 1) * X(i, 1) + w_hidden(2, 1) * X(i, 2) + b_hidden(1);
@@ -30,15 +31,13 @@ for round = 1:rounds
         z1out = my_activation(z1in);
         z2out = my_activation(z2in);
         z3out = my_activation(z3in);
-
-        % sum up the inputs for the output neuron (y)
-        yin = w_output(1) * z1out + w_output(2) * z2out + w_output(3) * z3out + b_output(1);
-
-        %calculate the output of the output neuron (y)
-        yout = my_activation(yin);
+    
+        % get the majority value
+        yout = my_majority(z1out, z2out, z3out);
 
         % update the weights and bias if needed
         if yout ~= Y(i)
+            error_value = error_value + 1;
             if Y(i) == 1
                 % decide which weight and bias to update
                 target1 = false;
@@ -53,9 +52,11 @@ for round = 1:rounds
 
                 if abs1 == minimum
                     target1 = true;
-                elseif abs2 == minimum
+                end
+                if abs2 == minimum
                     target2 = true;
-                elseif abs3 == minimum
+                end
+                if abs3 == minimum
                     target3 = true;
                 end
 
@@ -64,11 +65,13 @@ for round = 1:rounds
                     w_hidden(1, 1) = w_hidden(1, 1) + learning_rate*(Y(i)-z1in)*X(i, 1);
                     w_hidden(2, 1) = w_hidden(2, 1) + learning_rate*(Y(i)-z1in)*X(i, 2);
                     b_hidden(1) = b_hidden(1) + learning_rate*(Y(i)-z1in);
-                elseif target2 == true
+                end
+                if target2 == true
                     w_hidden(1, 2) = w_hidden(1, 2) + learning_rate*(Y(i)-z2in)*X(i, 1);
                     w_hidden(2, 2) = w_hidden(2, 2) + learning_rate*(Y(i)-z2in)*X(i, 2);
                     b_hidden(2) = b_hidden(2) + learning_rate*(Y(i)-z2in);
-                elseif target3 == true
+                end
+                if target3 == true
                     w_hidden(1, 3) = w_hidden(1, 3) + learning_rate*(Y(i)-z3in)*X(i, 1);
                     w_hidden(2, 3) = w_hidden(2, 3) + learning_rate*(Y(i)-z3in)*X(i, 2);
                     b_hidden(3) = b_hidden(3) + learning_rate*(Y(i)-z3in);
@@ -80,11 +83,13 @@ for round = 1:rounds
                 target2 = false;
                 target3 = false;
 
-                if zin1 > 0
+                if z1in > 0
                     target1 = true;
-                elseif zin2 > 0
+                end
+                if z2in > 0
                     target2 = true;
-                elseif zin3 > 0
+                end
+                if z3in > 0
                     target3 = true;
                 end
 
@@ -93,53 +98,61 @@ for round = 1:rounds
                     w_hidden(1, 1) = w_hidden(1, 1) + learning_rate*(Y(i)-z1in)*X(i, 1);
                     w_hidden(2, 1) = w_hidden(2, 1) + learning_rate*(Y(i)-z1in)*X(i, 2);
                     b_hidden(1) = b_hidden(1) + learning_rate*(Y(i)-z1in);
-                elseif taret2 == true
+                end
+                if target2 == true
                     w_hidden(1, 2) = w_hidden(1, 2) + learning_rate*(Y(i)-z2in)*X(i, 1);
                     w_hidden(2, 2) = w_hidden(2, 2) + learning_rate*(Y(i)-z2in)*X(i, 2);
                     b_hidden(2) = b_hidden(2) + learning_rate*(Y(i)-z2in);
-                elseif target3 == true
+                end
+                if target3 == true
                     w_hidden(1, 3) = w_hidden(1, 3) + learning_rate*(Y(i)-z3in)*X(i, 1);
                     w_hidden(2, 3) = w_hidden(2, 3) + learning_rate*(Y(i)-z3in)*X(i, 2);
                     b_hidden(3) = b_hidden(3) + learning_rate*(Y(i)-z3in);
                 end
-
             end
         end
     end
+    error(round) = error_value;
 end
 
-% Plotting the two moons
+% Create the plot for error
+plot(iteration, error);
+
+% Add labels to the axes
+xlabel('Iteration');
+ylabel('Error');
+
+% Add a title to the plot
+title('Error vs. Iteration');
+
+% Plotting the decision boundary for z1
 figure;
 hold on;
 scatter(X(Y == 1, 1), X(Y == 1, 2), 'blue', 'Marker', 'o');
 scatter(X(Y == -1, 1), X(Y == -1, 2), 'red', 'Marker', 'o');
 
-% Plotting the decision boundary
-x = linspace(-15, 25, 100);
-y = (-x*(w_hidden(1, 1)+w_hidden(1, 2)+w_hidden(1, 3))-b_hidden(1)-b_hidden(2)-b_hidden(3)+3)/(w_hidden(2, 1)+w_hidden(2, 2)+w_hidden(2, 3));
+x1 = linspace(-15, 25, 100);
+y1 = ((-x1*w_hidden(1, 1))/w_hidden(2, 1));
+plot(x1, y1, 'green', 'LineWidth', 2);
 
-%plot(x_boundary, y_boundary, 'g', 'LineWidth', 2, 'DisplayName', 'Decision Boundary');
-plot(x, y, 'green', 'LineWidth', 2);
+x2 = linspace(-15, 25, 100);
+y2 = ((-x2*w_hidden(1, 2))/w_hidden(2, 2));
+plot(x2, y2, 'red', 'LineWidth', 2);
 
+x3 = linspace(-15, 25, 100);
+y3 = ((-x3*w_hidden(1, 3))/w_hidden(2, 3));
+plot(x3, y3, 'blue', 'LineWidth', 2);
+
+xlim([-20, 30]);
+ylim([-15, 15]);
 title('Perceptron Decision Boundary');
 grid on;
-hold off
-
-
-
-
-
-
-
-
-
-
 
 
 
 function activation_output = my_activation(x)
-    % I will set the threshold to 5 
-    threshold = 5;
+    % I will set the threshold to 1
+    threshold = 1;
 
     if x > threshold
         activation_output = 1;
@@ -147,7 +160,6 @@ function activation_output = my_activation(x)
         activation_output = -1;
     end
 end
-
 
 function minout = my_min(x, y, z)
     minout = x;
@@ -157,6 +169,34 @@ function minout = my_min(x, y, z)
     if z < minout
         minout = z;
     end
+end
+
+function majority = my_majority(x, y, z)
+    one = 0;
+    n_one = 0;
+
+    if x == 1
+        one = one + 1;
+    else
+        n_one = n_one + 1;
+    end
+    if y == 1
+        one = one + 1;
+    else
+        n_one = n_one + 1;
+    end
+    if z == 1
+        one = one + 1;
+    else
+        n_one = n_one + 1;
+    end
+
+    if one > n_one
+        majority = 1;
+    else
+        majority = -1;
+    end
+
 end
 
 

@@ -1,20 +1,33 @@
 % loading the data
 load('Two_moons_no_overlap.mat');
 
-% I will set the weight to 0 initially
-weights = [0 0];
+% I will set the weight to small values
+weights = randi([100, 999], 1, 2) * 0.00001;
 
 % I will set the bias to 0 initially 
 bias = 0;
 
-% I will set the learning rate to 0.01 initially
-learning_rate = 0.01;
+% I will set the learning rate to 0.001 initially
+learning_rate = 0.001;
 
 % initialize error flag
 error_flag = true;
 
+% figure for plotting erros
+figure;
+hold on;
+
+% variables for error plotting
+iteration = [];
+iteration_count = 0;
+error_value = 0;
+error = [];
+
 % keep updating the weights and bias while there is an error
 while error_flag == true
+    iteration_count = iteration_count + 1;
+    iteration(iteration_count) = iteration_count;
+    error_value = 0;
     error_flag = false;
     % for each training vector and target output
     for i = 1:1000
@@ -27,13 +40,25 @@ while error_flag == true
         % update weights and bias
         if output ~= Y(i)
             error_flag = true;
-            weights(1) = weights(1) + learning_rate*Y(i)*X(i, 1);
-            weights(2) = weights(2) + learning_rate*Y(i)*X(i, 2);
-            bias = bias + learning_rate*Y(i);
+            weights(1) = weights(1) + learning_rate*(Y(i)-output)*X(i, 1);
+            weights(2) = weights(2) + learning_rate*(Y(i)-output)*X(i, 2);
+            bias = bias + learning_rate*(Y(i)-output);
+
+            error_value= error_value + abs(Y(i)-output);
         end
     end
+    error(iteration_count) = error_value;
 end
 
+% Create the plot for error
+plot(iteration, error);
+
+% Add labels to the axes
+xlabel('Iteration');
+ylabel('Error');
+
+% Add a title to the plot
+title('Error vs. Iteration');
 
 % Plotting the two moons
 figure;
@@ -43,7 +68,7 @@ scatter(X(Y == -1, 1), X(Y == -1, 2), 'red', 'Marker', 'o');
 
 % Plotting the decision boundary
 x = linspace(-15, 25, 100);
-y = -((x*weights(1)+bias-5)/weights(2));
+y = ((-x*weights(1))/weights(2));
 
 %plot(x_boundary, y_boundary, 'g', 'LineWidth', 2, 'DisplayName', 'Decision Boundary');
 plot(x, y, 'green', 'LineWidth', 2);
@@ -54,8 +79,8 @@ hold off
 
 
 function activation_output = my_activation(x)
-    % I will set the threshold to 5 
-    threshold = 5;
+    % I will set the threshold to 1
+    threshold = 1;
 
     if x > threshold
         activation_output = 1;
