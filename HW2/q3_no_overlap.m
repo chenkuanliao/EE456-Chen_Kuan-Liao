@@ -11,7 +11,7 @@ b_hidden = randi([100, 999], 3, 1) * 0.0000001;
 learning_rate = 0.005;
 
 % I will run the training for 100 rounds
-rounds = 600;
+rounds = 150;
 
 % variables for error plotting
 iteration = [];
